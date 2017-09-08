@@ -63,9 +63,14 @@ class Config(metaclass=HBConfigMeta):
 class SubConfig:
 
     def __init__(self, input_dict):
+        if type(input_dict) != dict:
+            raise TypeError("input_dict must be a dict type")
         self.subconfig = input_dict
 
     def __getattr__(self, name):
+        if name == "get":
+            return self.subconfig.get
+
         config_value = self.subconfig[name]
         if type(config_value) == dict:
             return SubConfig(config_value)
