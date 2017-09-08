@@ -1,0 +1,12 @@
+language: python
+python:
+  - "3.6"
+# command to install dependencies
+install: 
+  - "pip install -r requirements.txt"
+  - pip install codecov
+# command to run tests
+script: 
+    nosetests --with-coverage
+after_success:
+    codecov -t b4b74bed-e920-428d-b085-67b12179a556
