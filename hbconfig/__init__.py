@@ -23,12 +23,20 @@ class HBConfigMeta(type):
                 fname, fextension = os.path.splitext(config_file)
 
                 if fextension == ".json":
-                    return self.read_json(config_file)
+                    return self.parse_json(config_file)
+                elif fextension == ".yml":
+                    return self.parse_yaml(config_file)
 
-        def read_json(self, fname):
+        def parse_json(self, fname):
             path = os.path.join(self.base_dir + fname)
             with open(path, 'r') as infile:
                 return json.loads(infile.read())
+
+        def parse_yaml(self, fname):
+            import yaml
+            path = os.path.join(self.base_dir + fname)
+            with open(path, 'r') as infile:
+                return yaml.load(infile.read())
 
         def __getattr__(self, name):
             config_value = self.config[name]
