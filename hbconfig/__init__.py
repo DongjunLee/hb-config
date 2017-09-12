@@ -41,7 +41,7 @@ class HBConfigMeta(type):
         def __getattr__(self, name):
             config_value = self.config[name]
             if type(config_value) == dict:
-                return SubConfig(config_value)
+                return SubConfig(config_value, get=name)
             else:
                 return config_value
 
@@ -62,20 +62,29 @@ class Config(metaclass=HBConfigMeta):
 
 class SubConfig:
 
-    def __init__(self, input_dict):
-        if type(input_dict) != dict:
-            raise TypeError("input_dict must be a dict type")
-        self.subconfig = input_dict
+    def __init__(self, *args, get=None):
+        self.get = get
+        self.__dict__ = dict(*args)
 
     def __getattr__(self, name):
-        if name == "get":
-            return self.subconfig.get
-
-        config_value = self.subconfig[name]
-        if type(config_value) == dict:
-            return SubConfig(config_value)
+        if name in self.__dict__["__dict__"]:
+            item = self.__dict__["__dict__"][name]
+            if type(item) == dict:
+                return SubConfig(item, get=self.get+"."+name)
+            else:
+                return item
         else:
-            return config_value
+            raise AttributeError("No such attribute: " + name)
+
+    def __setattr__(self, name, value):
+        self.__dict__[name] = value
+        if name != "get" and name != "__dict__":
+            origin_config = Config.config
+            gets = self.get.split(".")
+            for get in gets:
+                origin_config = origin_config[get]
+
+            origin_config[name] = value
 
     def __repr__(self):
-        return json.dumps(self.subconfig, indent=4)
+        return json.dumps(self.__dict__["__dict__"], indent=4)
