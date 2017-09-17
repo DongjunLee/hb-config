@@ -9,7 +9,7 @@ def fpath(name):
 def read(fname):
     return codecs.open(fpath(fname), encoding='utf-8').read()
 
-HB_CONFIG_VERSION = '0.3.0'
+HB_CONFIG_VERSION = '0.3.1'
 
 setup (
     name='hb-config',

@@ -51,6 +51,9 @@ class HBConfigMeta(type):
             else:
                 return config_value
 
+        def to_dict(self):
+            return self.config
+
         def __repr__(self):
             return f"Read config file name: {self.read_fname}\n" + json.dumps(self.config, indent=4)
 
@@ -91,6 +94,9 @@ class SubConfig:
                 origin_config = origin_config[get]
 
             origin_config[name] = value
+
+    def to_dict(self):
+        return self.__dict__["__dict__"]
 
     def __repr__(self):
         return json.dumps(self.__dict__["__dict__"], indent=4)
