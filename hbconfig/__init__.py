@@ -10,14 +10,17 @@ class HBConfigMeta(type):
         base_fname = "config"
 
         def __init__(self):
-            self.config = self.read_file()
+            self.config = self.read_file(self.base_fname)
 
-        def read_file(self):
+        def __call__(self, fname):
+            self.config = self.read_file(fname)
+
+        def read_file(self, fname):
             files = os.listdir(self.base_dir)
-            config_files = list(filter(lambda f: f.startswith(self.base_fname + "."), files))
+            config_files = list(filter(lambda f: f.startswith(fname + "."), files))
 
             if len(config_files) == 0:
-                raise FileNotFoundError("No such files start filename 'config'")
+                raise FileNotFoundError(f"No such files start filename '{fname}'")
             else:
                 config_file = config_files[0]
                 fname, fextension = os.path.splitext(config_file)
@@ -28,11 +31,14 @@ class HBConfigMeta(type):
                     return self.parse_yaml(config_file)
 
         def parse_json(self, fname):
+            self.read_fname = fname
             path = os.path.join(self.base_dir + fname)
             with open(path, 'r') as infile:
                 return json.loads(infile.read())
 
         def parse_yaml(self, fname):
+            self.read_fname = fname
+
             import yaml
             path = os.path.join(self.base_dir + fname)
             with open(path, 'r') as infile:
@@ -46,7 +52,7 @@ class HBConfigMeta(type):
                 return config_value
 
         def __repr__(self):
-            return json.dumps(self.config, indent=4)
+            return f"Read config file name: {self.read_fname}\n" + json.dumps(self.config, indent=4)
 
     instance = None
 
