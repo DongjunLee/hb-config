@@ -79,7 +79,7 @@ class SubConfig:
         if name in self.__dict__["__dict__"]:
             item = self.__dict__["__dict__"][name]
             if type(item) == dict:
-                return SubConfig(item, get=self.get_tag+"."+name)
+                return SubConfig(item, get_tag=self.get_tag+"."+name)
             else:
                 return item
         else:
