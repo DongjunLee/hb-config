@@ -96,8 +96,8 @@ class SubConfig:
             origin_config[name] = value
 
     def get(self, name, default_value):
-        if name is None or default_value is None:
-            raise ValueError("name or default_value not null.")
+        if name is None:
+            raise ValueError("name not null.")
         return self.__dict__["__dict__"].get(name, default_value)
 
     def to_dict(self):
