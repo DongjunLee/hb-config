@@ -47,7 +47,7 @@ class HBConfigMeta(type):
         def __getattr__(self, name):
             config_value = self.config[name]
             if type(config_value) == dict:
-                return SubConfig(config_value, get=name)
+                return SubConfig(config_value, get_tag=name)
             else:
                 return config_value
 
@@ -71,15 +71,15 @@ class Config(metaclass=HBConfigMeta):
 
 class SubConfig:
 
-    def __init__(self, *args, get=None):
-        self.get = get
+    def __init__(self, *args, get_tag=None):
+        self.get_tag = get_tag
         self.__dict__ = dict(*args)
 
     def __getattr__(self, name):
         if name in self.__dict__["__dict__"]:
             item = self.__dict__["__dict__"][name]
             if type(item) == dict:
-                return SubConfig(item, get=self.get+"."+name)
+                return SubConfig(item, get=self.get_tag+"."+name)
             else:
                 return item
         else:
@@ -89,11 +89,16 @@ class SubConfig:
         self.__dict__[name] = value
         if name != "get" and name != "__dict__":
             origin_config = Config.config
-            gets = self.get.split(".")
+            gets = self.get_tag.split(".")
             for get in gets:
                 origin_config = origin_config[get]
 
             origin_config[name] = value
+
+    def get(self, name, default_value):
+        if name is None or default_value is None:
+            raise ValueError("name or default_value not null.")
+        return self.__dict__["__dict__"].get(name, default_value)
 
     def to_dict(self):
         return self.__dict__["__dict__"]
