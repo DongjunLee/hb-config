@@ -41,62 +41,57 @@
 # hb-config: easy to configure your python packge
 
 
-hb-config is utility for easy to configure your python package.
+hb-config is utility for easy to configure your python package.  
+Do not use any **boilerplate code**.
 
 ## Feature
 
-- Configure set automatically according to the **git branch** name.
-- Supports files in three formats: **.json, .yaml, and .conf**
-- Access property using **\_\_getattr\_\_** function
+- Supports files in three formats: **.json and .yaml**
+- Access property using **\_\_getattr\_\_** function ```Config.TOKEN```
+- Edit property using **\_\_setattr\_\_** function ```Config.TOKEN = "{token}"```
 - every config data's type is **dict**
+- Config instance is Singleton.
 
 ## Example
 
-- config.json example
+- config3.yml example
 
-```json
-{
-    "bot": {
-        "in_bot": {
-            "in_in_bot": {
-                "haha": "hoho"
-            },
-            "name": "bot_name"
-        }
-    },
-    "token": "test"
-}
-
+```yml
+project: hb-config
+example: true
+bot:
+  in_bot:
+    test: haha
+    simple: wow
 ```
 
 - Handle example
 
 ```python
 >>> from hbconfig import Config
+>>> Config("config3")
 >>> Config
+Read config file name: config3.yml
 {
+    "project": "hb-config",
+    "example": true,
     "bot": {
         "in_bot": {
-            "in_in_bot": {
-                "haha": "hoho"
-            },
-            "name": "bot_name"
+            "test": "haha",
+            "simple": "wow"
         }
-    },
-    "token": "test"
+    }
 }
 
 >>> Config.bot.in_bot
 {
-    "in_in_bot": {
-        "haha": "hoho"
-    },
-    "name": "bot_name"
+    "test": "haha"
+    "simple": "wow"
 }
 
->>> Config.token
-'test'
+>>> Config.project
+'hb-config'
 
->>> Config.bot.in_bot.in_in_bot.haha
-'hoho'
+>>> Config.bot.in_bot.simple
+'wow'
 ```
