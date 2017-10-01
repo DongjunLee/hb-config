@@ -9,17 +9,24 @@ class HBConfigMeta(type):
         base_dir = "./config/"
         base_fname = "config"
 
-        def __init__(self):
-            self.config = self.read_file(self.base_fname)
+        def __init__(self, is_new=False):
+            self.is_new = is_new
+            self.config = None
+
+            if is_new is False:
+                self.config = self.read_file(self.base_fname)
 
         def __call__(self, fname):
-            self.config = self.read_file(fname)
+            if fname is None:
+                self.config = self.read_file(self.base_fname)
+            else:
+                self.config = self.read_file(fname)
 
         def read_file(self, fname):
             files = os.listdir(self.base_dir)
             config_files = list(filter(lambda f: f.startswith(fname + "."), files))
 
-            if len(config_files) == 0:
+            if len(config_files) == 0 and self.is_new is False:
                 raise FileNotFoundError(f"No such files start filename '{fname}'")
             else:
                 config_file = config_files[0]
@@ -44,24 +51,34 @@ class HBConfigMeta(type):
             with open(path, 'r') as infile:
                 return yaml.load(infile.read())
 
+        def to_dict(self):
+            return self.config
+
         def __getattr__(self, name):
+            self._set_config()
+
             config_value = self.config[name]
             if type(config_value) == dict:
                 return SubConfig(config_value, get_tag=name)
             else:
                 return config_value
 
-        def to_dict(self):
-            return self.config
-
         def __repr__(self):
-            return f"Read config file name: {self.read_fname}\n" + json.dumps(self.config, indent=4)
+            if self.config is None:
+                raise FileNotFoundError(f"No such files start filename '{self.base_fname}'")
+            else:
+                return f"Read config file name: {self.read_fname}\n" + json.dumps(self.config, indent=4)
+
+        def _set_config(self):
+            if self.config is None:
+                self.is_new = False
+                self.config = self.read_file(self.base_fname)
 
     instance = None
 
     def __new__(cls, *args, **kwargs):
         if not cls.instance:
-            cls.instance = cls.__HBConfigMeta()
+            cls.instance = cls.__HBConfigMeta(is_new=True)
         return cls.instance
 
 
@@ -96,8 +113,6 @@ class SubConfig:
             origin_config[name] = value
 
     def get(self, name, default_value):
-        if name is None:
-            raise ValueError("name not null.")
         return self.__dict__["__dict__"].get(name, default_value)
 
     def to_dict(self):
