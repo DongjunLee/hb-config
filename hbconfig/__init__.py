@@ -17,6 +17,8 @@ class HBConfigMeta(type):
                 self.config = self.read_file(self.base_fname)
 
         def __call__(self, fname):
+            self.is_new = False
+
             if fname is None:
                 self.config = self.read_file(self.base_fname)
             else:
