@@ -46,11 +46,11 @@ Do not use any **boilerplate code**.
 
 ## Feature
 
-- Supports files in three formats: **.json and .yaml**
+- Supports formats: **.json and .yaml**
 - Access property using **\_\_getattr\_\_** function ```Config.TOKEN```
 - Edit property using **\_\_setattr\_\_** function ```Config.TOKEN = "{token}"```
 - every config data's type is **dict**
-- Config instance is Singleton.
+- Singleton Config.
 
 ## Install
 
@@ -66,7 +66,7 @@ or clone repository
 python setup.py install
 ```
 
-## Example
+## Usage
 
 - config3.yml example
 
@@ -79,7 +79,12 @@ bot:
     simple: wow
 ```
 
-- Handle example
+- Using like dict
+	- only one difference : Config["project"] -> Config.project
+	- using get Config.get("project"), Config.get("project", {})
+	- using set Config.project = "set value" 
+
+### Load config
 
 ```python
 >>> from hbconfig import Config
@@ -96,7 +101,10 @@ Read config file name: config3.yml
         }
     }
 }
+```
 
+### Get
+```
 >>> Config.bot.in_bot
 {
     "test": "haha"
@@ -106,6 +114,26 @@ Read config file name: config3.yml
 >>> Config.project
 'hb-config'
 
->>> Config.bot.in_bot.simple
+>>> Config.bot.in_bot.get("simple")
 'wow'
+
+>>> Config.bot.in_bot.get("not_exist_key", "default_value")
+'default_value'
+```
+
+### Set 
+
+- The config file does not change.
+
+```
+>>> Config.bot.in_bot
+{
+    "test": "haha"
+    "simple": "wow"
+}
+
+>>> Config.bot.in_bot = "hello"
+>>> Config.bot.in_bot
+'hello'
+
 ```

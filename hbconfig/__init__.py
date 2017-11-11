@@ -3,6 +3,7 @@ import os
 import os.path
 
 
+
 class HBConfigMeta(type):
     class __HBConfigMeta:
 
@@ -18,13 +19,19 @@ class HBConfigMeta(type):
 
         def __call__(self, fname):
             self.is_new = False
-
             if fname is None:
                 self.config = self.read_file(self.base_fname)
             else:
                 self.config = self.read_file(fname)
 
         def read_file(self, fname):
+            if not os.path.isdir(fname) and os.path.exists(fname):
+                path = fname
+                fname, fextension = os.path.splitext(path)
+                self.read_fname = fname
+
+                return self._read_file(path, fextension)
+
             files = os.listdir(self.base_dir)
             config_files = list(filter(lambda f: f.startswith(fname + "."), files))
 
@@ -33,28 +40,35 @@ class HBConfigMeta(type):
             else:
                 config_file = config_files[0]
                 fname, fextension = os.path.splitext(config_file)
+                self.read_fname = self.base_dir + fname
 
-                if fextension == ".json":
-                    return self.parse_json(config_file)
-                elif fextension == ".yml":
-                    return self.parse_yaml(config_file)
+                path = os.path.join(self.base_dir, config_file)
+                return self._read_file(path, fextension)
 
-        def parse_json(self, fname):
-            self.read_fname = fname
-            path = os.path.join(self.base_dir + fname)
+        def _read_file(self, path, fextension):
+            if fextension == ".json":
+                return self.parse_json(path)
+            elif fextension == ".yml":
+                return self.parse_yaml(path)
+
+        def parse_json(self, path):
             with open(path, 'r') as infile:
                 return json.loads(infile.read())
 
-        def parse_yaml(self, fname):
-            self.read_fname = fname
-
+        def parse_yaml(self, path):
             import yaml
-            path = os.path.join(self.base_dir + fname)
+            path = os.path.join(path)
             with open(path, 'r') as infile:
                 return yaml.load(infile.read())
 
         def to_dict(self):
             return self.config
+
+        def get(self, name, default=None):
+            try:
+                return self.__getattr__(name)
+            except KeyError as ke:
+                return default
 
         def __getattr__(self, name):
             self._set_config()
@@ -114,8 +128,8 @@ class SubConfig:
 
             origin_config[name] = value
 
-    def get(self, name, default_value):
-        return self.__dict__["__dict__"].get(name, default_value)
+    def get(self, name, default=None):
+        return self.__dict__["__dict__"].get(name, default)
 
     def to_dict(self):
         return self.__dict__["__dict__"]
