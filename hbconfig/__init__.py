@@ -52,14 +52,43 @@ class HBConfigMeta(type):
                 return self.parse_yaml(path)
 
         def parse_json(self, path):
-            with open(path, 'r') as infile:
-                return json.loads(infile.read())
+            path = os.path.join(path)
+
+            config = self.parse_description_then_remove(path)
+            return json.loads(config)
 
         def parse_yaml(self, path):
             import yaml
             path = os.path.join(path)
+
+            config = self.parse_description_then_remove(path)
+            return yaml.load(config)
+
+        def parse_description_then_remove(self, path):
+
+            DESCRIPTION_SEPARATOR = " #"
+            self.description = {}
+
+            def _preprocessing_key(key):
+                key = key.strip()
+                if key.startswith('"') and key.endswith('"'):
+                    key = key[1:-1]
+                return key.strip()
+
+            config = ""
             with open(path, 'r') as infile:
-                return yaml.load(infile.read())
+                for line in infile.readlines():
+                    if DESCRIPTION_SEPARATOR in line:
+                        key, _ = line.split(":")
+                        key = _preprocessing_key(key)
+                        description = line.split(DESCRIPTION_SEPARATOR)[1]
+
+                        self.description[key] = description[:-1].strip()
+
+                        config += line.split(DESCRIPTION_SEPARATOR)[0] + "\n"
+                    else:
+                        config += line
+            return config
 
         def to_dict(self):
             return self.config

@@ -86,6 +86,7 @@ bot:
 	- only one difference : Config["project"] -> Config.project
 	- using get Config.get("project"), Config.get("project", {})
 	- using set Config.project = "set value" 
+- Add description with python annotation. `#` 
 
 ### Load config
 
@@ -139,6 +140,36 @@ Read config file name: config3.yml
 >>> Config.bot.in_bot
 'hello'
 
+```
+
+### Description
+
+- example config
+
+```yml
+project: hb-config    # project name
+example: true         # is it example?
+bot:
+  in_bot:
+    test: haha
+    simple: wow
+```
+
+```
+>>> Config
+Read config file name: ./config/config
+{
+    "project": "hb-config",
+    "example": true,
+    "bot": {
+        "in_bot": {
+            "test": "haha",
+            "simple": "wow"
+        }
+    }
+}
+>>> Config.description
+{'example': 'is it example?', 'project': 'project name'}
 ```
 
 
