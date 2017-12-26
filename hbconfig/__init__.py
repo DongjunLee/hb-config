@@ -13,6 +13,7 @@ class HBConfigMeta(type):
         def __init__(self, is_new=False):
             self.is_new = is_new
             self.config = None
+            self.description = None
 
             if is_new is False:
                 self.config = self.read_file(self.base_fname)
