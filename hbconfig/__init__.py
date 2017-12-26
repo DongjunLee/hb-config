@@ -80,7 +80,7 @@ class HBConfigMeta(type):
             with open(path, 'r') as infile:
                 for line in infile.readlines():
                     if DESCRIPTION_SEPARATOR in line:
-                        key, _ = line.split(":")
+                        key = line.split(":")[0]
                         key = _preprocessing_key(key)
                         description = line.split(DESCRIPTION_SEPARATOR)[1]
 
