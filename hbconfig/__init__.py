@@ -77,8 +77,9 @@ class HBConfigMeta(type):
                 return key.strip()
 
             config = ""
-            with open(path, 'r') as infile:
+            with open(path, 'rb') as infile:
                 for line in infile.readlines():
+                    line = line.decode('utf-8')
                     if DESCRIPTION_SEPARATOR in line:
                         key = line.split(":")[0]
                         key = _preprocessing_key(key)
